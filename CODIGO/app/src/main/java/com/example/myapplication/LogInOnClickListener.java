@@ -35,12 +35,14 @@ public class LogInOnClickListener implements View.OnClickListener{
         Log.i("main", "passwordvalue: "+passwordvalue);
 
         EntidadLogIn entidad = new EntidadLogIn("DEV", mailvalue, passwordvalue);
-
+        Log.i("prueba", "prueba con hilo "+Thread.currentThread().getName());
         LogInService loginsrvc = LogInService.getInstance();
         loginsrvc.post(entidad, new Callback<LogInResponse>() {
             @Override
             public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
-             if(response.isSuccessful()){
+                Log.i("prueba2", "prueba2 con hilo "+Thread.currentThread().getName());
+
+                if(response.isSuccessful()){
                 Log.i("registroservicio", response.body().toString());
                 LogInResponse res = response.body();
                 EntidadEvents entidadEvents = new EntidadEvents("DEV", "Login", "ACTIVO", "se logueó el usuario "+mailvalue);
@@ -67,6 +69,7 @@ public class LogInOnClickListener implements View.OnClickListener{
                 Log.e("registroservicio", Log.getStackTraceString(t));
             }
         });
+        Log.i("termino prueba", "terminada prueba con hilo "+Thread.currentThread().getName());
     }
 
     private boolean checkFormulario(){
