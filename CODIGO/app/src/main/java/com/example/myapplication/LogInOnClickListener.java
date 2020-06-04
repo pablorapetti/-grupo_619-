@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.app.Notification;
 import android.content.Intent;
 import android.util.Log;
 import android.view.View;
@@ -17,8 +18,10 @@ import retrofit2.Response;
 
 public class LogInOnClickListener implements View.OnClickListener{
     private AppCompatActivity mainactivity;
+
     TextView mail;
     TextView password;
+
     public LogInOnClickListener(AppCompatActivity main) {
         mainactivity = main;
 
@@ -35,12 +38,12 @@ public class LogInOnClickListener implements View.OnClickListener{
         Log.i("main", "passwordvalue: "+passwordvalue);
 
         EntidadLogIn entidad = new EntidadLogIn("DEV", mailvalue, passwordvalue);
-        Log.i("prueba", "prueba con hilo "+Thread.currentThread().getName());
+
         LogInService loginsrvc = LogInService.getInstance();
         loginsrvc.post(entidad, new Callback<LogInResponse>() {
             @Override
             public void onResponse(Call<LogInResponse> call, Response<LogInResponse> response) {
-                Log.i("prueba2", "prueba2 con hilo "+Thread.currentThread().getName());
+
 
                 if(response.isSuccessful()){
                 Log.i("registroservicio", response.body().toString());
@@ -69,7 +72,7 @@ public class LogInOnClickListener implements View.OnClickListener{
                 Log.e("registroservicio", Log.getStackTraceString(t));
             }
         });
-        Log.i("termino prueba", "terminada prueba con hilo "+Thread.currentThread().getName());
+
     }
 
     private boolean checkFormulario(){
