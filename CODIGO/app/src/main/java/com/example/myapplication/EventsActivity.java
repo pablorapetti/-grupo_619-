@@ -36,6 +36,8 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
     private float orientationX = -1;
     private float orientationY = -1;
     private float orientationZ = -1;
+    List<Sensor> sensors = new ArrayList<>();
+    SensorManager sm = null;
 
     List<EventSensor> events = new ArrayList<>();
     Gson gson = new Gson();
@@ -46,8 +48,8 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.events_layout);
-        SensorManager sm = (SensorManager) this.getSystemService(SENSOR_SERVICE);
-        List<Sensor> sensors = new ArrayList<>();
+        sm = (SensorManager) this.getSystemService(SENSOR_SERVICE);
+
         sensors.add(sm.getDefaultSensor(Sensor.TYPE_ORIENTATION));
         sensors.add(sm.getDefaultSensor(Sensor.TYPE_LIGHT));
         sensors.add(sm.getDefaultSensor(Sensor.TYPE_PROXIMITY));
@@ -79,10 +81,27 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
         String serializacion = gson.toJson(events);
         ed.putString("llave", serializacion);
         ed.commit();
+        sm.unregisterListener(this);
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    protected void onPause() {
+        super.onPause();
+        sm.unregisterListener(this);  // cambio a otra aplicacion
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        for(Sensor s : sensors) {
+            Log.i("sensor list:", s.getName());
+            sm.registerListener(this, s, SensorManager.SENSOR_DELAY_NORMAL);  //vuelvo a mi aplicacion
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {/*
         Log.d("tag", "config changed");
         super.onConfigurationChanged(newConfig);
 
@@ -113,12 +132,11 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
             //sensorMap.put("pantalla", "prueba2");
             //sensorMap.put("se giró la pantalla con orientación", "paisaje");
         }
-    }
+    */}
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         sync(event);
-
 
         //sensorMap.put(event.sensor.getName(), gson.toJson(sensorMap));
         //updateValues();
@@ -162,24 +180,32 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
         if(diffOr>=timeDelay){
             delayOrientation = System.currentTimeMillis();
 
-
-            if(orientationX != event.values[1]){
-                Log.i("orientacion", "por aca " +event.values.length);
+            if(orientationX != event.values[1] || orientationY != event.values[2] || orientationZ != event.values[0]){
                 addEvent(event, "sensor orientacion", true);
-                orientationX = event.values[1];
+
+                float orX = Math.abs(orientationX - event.values[1]);
+                if(orX >= 5){
+                    Log.i("orientacion", "por aca " +event.values.length);
+                    //    addEvent(event, "sensor orientacion", true);
+                    orientationX = event.values[1];
+                }
+
+                float orY = Math.abs(orientationY - event.values[2]);
+                if(orY >= 5){
+                    Log.i("orientacion", "por aca " +event.values.length);
+                    //   addEvent(event, "sensor orientacion", true);
+                    orientationY = event.values[2];
+                }
+
+                float orZ = Math.abs(orientationZ - event.values[0]);
+                if(orZ >= 5){
+                    Log.i("orientacion", "por aca " +event.values.length);
+                    //   addEvent(event, "sensor orientacion", true);
+                    orientationZ = event.values[0];
+                }
             }
 
-            if(orientationY != event.values[2]){
-                Log.i("orientacion", "por aca " +event.values.length);
-                addEvent(event, "sensor orientacion", true);
-                orientationY = event.values[2];
-            }
 
-            if(orientationZ != event.values[0]){
-                Log.i("orientacion", "por aca " +event.values.length);
-                addEvent(event, "sensor orientacion", true);
-                orientationZ = event.values[0];
-            }
         }
 
 
@@ -192,7 +218,8 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
         if(diff>=(timeDelay+200)){
             delayLight = System.currentTimeMillis();
 
-            if(sensorlight != event.values[0]){
+            float difference = Math.abs(sensorlight - event.values[0]);
+            if(difference>10){
                 //Log.i("luz", "por aca " +event.values[0]);
                 addEvent(event, "sensor luz", false);
 
@@ -211,7 +238,8 @@ public class EventsActivity extends AppCompatActivity implements SensorEventList
         if(diffProx>=(timeDelay+400)){
             delayProx = System.currentTimeMillis();
 
-            if(sensorprox != event.values[0]){
+            float difference = Math.abs(sensorprox - event.values[0]);
+            if(difference>10){
                 //Log.i("prox", "por aca " +event.values[0]);
                 addEvent(event, "sensor prox", false);
 

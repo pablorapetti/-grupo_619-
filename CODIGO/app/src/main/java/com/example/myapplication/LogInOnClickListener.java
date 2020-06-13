@@ -17,12 +17,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class LogInOnClickListener implements View.OnClickListener{
-    private AppCompatActivity mainactivity;
+    private MainActivity mainactivity;
 
     TextView mail;
     TextView password;
 
-    public LogInOnClickListener(AppCompatActivity main) {
+    public LogInOnClickListener(MainActivity main) {
         mainactivity = main;
 
         mail = mainactivity.findViewById(R.id.email);
@@ -31,6 +31,12 @@ public class LogInOnClickListener implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+
+        if (!mainactivity.isOnline()) {
+            Toast.makeText(mainactivity.getApplicationContext(),"No hay conexión a internet", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Button login = (Button) v;
         final String mailvalue = mail.getText().toString();
         String passwordvalue = password.getText().toString();
@@ -70,6 +76,7 @@ public class LogInOnClickListener implements View.OnClickListener{
             @Override
             public void onFailure(Call<LogInResponse> call, Throwable t) {
                 Log.e("registroservicio", Log.getStackTraceString(t));
+                Toast.makeText(mainactivity.getApplicationContext(),"No llegué al server "+t.getMessage(),Toast.LENGTH_LONG).show();
             }
         });
 

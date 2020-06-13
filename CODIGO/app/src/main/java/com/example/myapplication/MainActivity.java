@@ -26,11 +26,11 @@ public class MainActivity extends AppCompatActivity {
          
         Button botonlogin = findViewById(R.id.login);
         // botonregistro.setText("string");
-        botonlogin.setOnClickListener(new LogInOnClickListener(this));
+        botonlogin.setOnClickListener(new LogInOnClickListener(this)); //componente que escucha al widget del boton login
 
         Button botonregistro = findViewById(R.id.registro);
         // botonregistro.setText("string");
-        botonregistro.setOnClickListener(new RegisterOnClickListenerTo(this));
+        botonregistro.setOnClickListener(new RegisterOnClickListenerTo(this)); //componente que escucha al widget del boton registro
     }
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
